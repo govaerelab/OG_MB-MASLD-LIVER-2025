@@ -20,7 +20,7 @@
 # Additional Data 
 
 # Raw Data Download
-The scRNA datasets are available from the corresponding authors on request.
+The scRNA datasets are available from the European Genome Archive (EGA) under accession number EGAS50000000768.
 
-The metadata can be extracted from the supplementary dataset
+The metadata can be extracted from the corresponding authors on request.
 
