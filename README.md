@@ -5,7 +5,7 @@
 ![](https://github.com/MarkusBoesch93/SVDM-ACLF-PBMC-2023/blob/bf014874325ddfa50b6010432daed3f5dd23e5d4/Graphical%20Abstract.PNG)
 
 # Brief Descriptions of Analysis Scripts
-**01_QC_and_Cluster** - General setup and analysis to reproduce the Figures and analysis.
+**01_QC_and_Cluster** - General setup and clustering to reproduce the Figures and analysis.
 
 **02_Figure_1** - Script for reproducing Figure 1 and Supplementary Figure 1.
 
