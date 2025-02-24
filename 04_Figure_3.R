@@ -164,7 +164,7 @@ Idents(Myeloid_postclean)<-Myeloid_postclean$disease_MASH
 sub<-subset(Myeloid_postclean, subset=new_subcluster %in% "GPNMB Mac")
 DefaultAssay(sub)<-"RNA"
 sub<-NormalizeData(object = sub, normalization.method = "LogNormalize", scale.factor = 10000, assay = "RNA")
-subMM_norm <- FindMarkers(object = sub,ident.1 = "No MASH", ident.2 = "MASH",  min.pct = 0.10, logfc.threshold = 0,  slot="data", test.use = "LR", latent.vars = c("nCount_RNA","percent.mito"), verbose=F)
+subMM_volc <- FindMarkers(object = sub,ident.1 = "No MASH", ident.2 = "MASH",  min.pct = 0.10, logfc.threshold = 0,  slot="data", test.use = "LR", latent.vars = c("nCount_RNA","percent.mito"), verbose=F)
 
 subMM_volc_sig = subMM_volc[which(subMM_volc$p_val_adj<0.05),]
 subMM_volc_sig<-subMM_volc_sig %>% dplyr::rename(No_MASH=pct.1, MASH=pct.2)
