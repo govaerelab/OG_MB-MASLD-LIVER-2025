@@ -2,7 +2,7 @@
 ## [Link]
 ## Please cite : Boesch M et al., Integrated Multiomics Uncovers Distinct Macrophage Alterations in Human Metabolic dysfunction-Associated Steatohepatitis Progression.  (2025) <br/>
 
-![](https://github.com/MarkusBoesch93/SVDM-ACLF-PBMC-2023/blob/bf014874325ddfa50b6010432daed3f5dd23e5d4/Graphical%20Abstract.PNG)
+![](https://github.com/MarkusBoesch93/OG_MB-MASLD-LIVER-2025/blob/main/Graphical%20abstract.jpg?raw=true)
 
 # Brief Descriptions of Analysis Scripts
 **01_QC_and_Cluster** - General setup and clustering to reproduce the Figures and analysis.
