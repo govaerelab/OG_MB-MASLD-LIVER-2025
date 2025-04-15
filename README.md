@@ -15,6 +15,8 @@
 
 **05_Figure_5** - Script for reproducing Figure 5 and Supplementary Figure 6.
 
+**CosMx_Nanostring.R** -  Script to reproduce CosMX analysis
+
 **DoMultiBarHeatmap** - Function to make a MultiBarHeatmap
 
 # Additional Data 
