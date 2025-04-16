@@ -17,7 +17,7 @@
 
 **CosMx_Nanostring.R** -  Script to reproduce CosMX analysis
 
-**Cibersort_MASLD.R** -  Script to reproduce CibersortX deconvolution
+**Cibersort_MASLD.R** -  Script to reproduce CibersortX deconvolution algorithm of bulk RNA-seq using sc/snRNA-seq data
 
 **DoMultiBarHeatmap** - Function to make a MultiBarHeatmap
 
