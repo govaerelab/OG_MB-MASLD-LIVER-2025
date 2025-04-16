@@ -17,6 +17,8 @@
 
 **CosMx_Nanostring.R** -  Script to reproduce CosMX analysis
 
+**Cibersort_MASLD.R** -  Script to reproduce CibersortX deconvolution
+
 **DoMultiBarHeatmap** - Function to make a MultiBarHeatmap
 
 # Additional Data 
