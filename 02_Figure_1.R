@@ -161,6 +161,43 @@ my_colour = list(
 
 heatmap_gsva2<-pheatmap(mean_gsva,scale="row", cluster_cols = F, cluster_rows = F,annotation_colors = my_colour ,annotation_col = Myeloid_annotation_bar, show_rownames = T,show_colnames = F,annotation_legend = F, fontsize = fontsize, treeheight_row = 1,treeheight_col = 2,gaps_col = c(4,8,12,16), color =colorRampPalette( c("steelblue2", "white", "red2"))(50), angle_col = 90 )
 
+#GSVA statistics
+cluster.group <- as.character(df.group$cluster) 
+library("openxlsx")
+l<-list()
+clusters<-c("KC", "GPNMB Mac","TransMac","preMac",  "Monocyte")
+for ( i in clusters){
+ cluster.group<-   cluster.group[grep(i,cluster.group )]
+cluster.group[grep("lean",cluster.group )] <- 0
+cluster.group[grep("obese",cluster.group )] <- 1
+cluster.group[grep("MASL",cluster.group )] <- 2
+cluster.group[grep("MASH",cluster.group )] <- 3
+subcells<-subset(sub, subset=new_subcluster %in% i)    
+subcells$disease<-factor(x=subcells$disease, levels=c( "lean" ,"obese","MASL", "MASH"))
+wtDes<-as.data.frame(subcells@meta.data) 
+wtDesMat <- model.matrix(~0 + disease, wtDes )
+con <- makeContrasts(leanvsobese=  diseaselean -diseaseobese,
+                     leanvsMASL=  diseaselean -diseaseMASL,
+                     leanvsMASH=  diseaselean -diseaseMASH,
+                     obesevsMASL=  diseaseobese -diseaseMASL,
+                     obesevsMASH=  diseaseobese -diseaseMASH,
+                     MASLvsMASH=  diseaseMASL -diseaseMASH,
+                     levels=wtDesMat)
+gsvascore_subcells<-gsvascore_all[,Cells(subcells)]
+fit <- lmFit(gsvascore_subcells, wtDesMat)
+fit2 <- contrasts.fit(fit, con)
+fit3 <- eBayes(fit2)
+df<-data.frame()
+for(j in 1:length(colnames(con))){
+  sig_table<-topTable(fit3, coef = j, adjust.method = "BH", n=Inf)
+  df<-qpcR:::rbind.na(df, as.data.frame(c(colnames(con))[j]),sig_table)
+}
+ l[[length(l) + 1]]  <-df
+    
+ }
+names(l)<-clusters
+write.xlsx(l, file = paste("/data/leuven/343/vsc34335/CosMX/GSVA_disease_sig_pathways.xlsx", sep = ""), row.names=T)
+
 #Figure S1
 Umap_Liver_orig<-DimPlot(Liver_clean, reduction = "umap",  group.by = "orig.ident", repel = F, label = F, pt.size = 0.5,  raster = T, shuffle = T)+ggtitle("")+FontSize(x.text = fontsize, y.text = fontsize, x.title = fontsize, y.title = fontsize, legend.text=element_text(size=fontsize), legend.title=element_text(size=fontsize ))
 Umap_Liver_disease<-DimPlot(Liver_clean, reduction = "umap",  group.by = "disease", repel = F, label = F, pt.size = 0.5, cols=colours_disease, raster = F, shuffle = T)+ggtitle("")+FontSize(x.text = fontsize, y.text = fontsize, x.title = fontsize, y.title = fontsize, legend.text=element_text(size=fontsize), legend.title=element_text(size=fontsize ))+NoLegend() 
@@ -210,6 +247,11 @@ milo.res <- annotateNhoods(MILO_obj, milo.res, coldata_col = "new_subcluster")##
 milo.res$new_subcluster<-factor(x=milo.res$new_subcluster, levels = levels(sub))
 
 plot<-plotNhoodGraphDA(MILO_obj, milo.res, alpha=0.05)+ggtitle("")
+
+#beeswarmplot of miloR
+milo_plot<-plotDAbeeswarm(milo.res, group.by = "new_subcluster", alpha = 0.05)+xlab("")+FontSize(x.text = fontsize, y.text = fontsize, x.title = fontsize, 
+                                                                                                 y.title = fontsize,legend.text=element_text(size=fontsize), legend.title=element_text(size=fontsize )) 
+ggsave(plot=milo_plot, filename=paste0("Figures/Olivier/Myeloids_miloR_0_05.pdf") ,height=5, width=5, units="in", dpi=320)
 
 #miloR barplot
 df<-list()
@@ -422,6 +464,94 @@ diseases_levels<-c("lean", "obese", "MASL", "MASH")
 order<-c("Hepatocytes","Cholangiocytes","LSEC","EC","HSC","VSMC","CD4_T","CD8_T","MAIT","ILC","NK","B_cells","pDC", "KC", "GPNMB_Mac", "TransMac","preMac",  "Monocyte", "DCs")
 for(i in diseases_levels){
   heatmap_cellphonedb_diseases(diseases=i,  ordering=order)}
+
+#Generate plots for Endothelia, Lymphocytes and Mesenchymal cells
+cluster_list<-list( Endothelial="Endothelial",
+                  Mesenchymal="Mesenchymal",
+                  Lymphocytes=c("Lymphocytes","pDC","B cells"))
+
+for(i in names(cluster_list)){
+    clusters<-cluster_list[[i]]
+    sub<-subset(Liver_clean,subset=Cluster %in% clusters)
+    Idents(sub)<-sub$subcluster_cellphonedb
+subcluster_levels<-levels(sub)
+    sub$subcluster_cellphonedb<-droplevels(sub$subcluster_cellphonedb)
+  if (i %in% c("Endothelial", "Lymphocytes")) {
+  dims <- 30
+} else if (i %in% c(  "Mesenchymal")) {
+  dims <- 20
+} else {
+  dims <- NA  # Default value if none of the conditions are met
+} 
+    if (i %in% "Lymphocytes"){
+     colours<-c("darkgreen","darkmagenta","mediumorchid2","slateblue2","dodgerblue3", "burlywood","#FB61D7")    
+    }
+   
+#UMAP
+    DefaultAssay(sub)<-"RNA"
+sub<-FindVariableFeatures(object = sub, verbose=F)
+DefaultAssay(sub)<-"integrated" ##use only for "clustering" not differential analysis
+sub <- ScaleData(object = sub,
+                  vars.to.regress = c("nCount_RNA", "percent.mito"))
+sub <- RunPCA(object = sub, npcs = dims)
+sub <- RunUMAP(sub, dims = 1:dims, return.model = T)
+ DefaultAssay(sub)<-"RNA"
+sub<-NormalizeData(object = sub, normalization.method = "LogNormalize", scale.factor = 10000, assay = "RNA")
+    
+if (i %in% "Lymphocytes"){
+    Umap<-DimPlot(sub, reduction = "umap",  group.by = "subcluster_cellphonedb", repel = F, label = F, pt.size = 0.5,  order = F, 
+                                raster = F, cols=colours )+ggtitle("")+FontSize(x.text = fontsize, y.text = fontsize, x.title = fontsize, y.title = fontsize, legend.text=element_text(size=fontsize), 
+                                                                 legend.title=element_text(size=fontsize ))   
+    }    
+    
+Umap<-DimPlot(sub, reduction = "umap",  group.by = "subcluster_cellphonedb", repel = F, label = F, pt.size = 0.5,  order = F, 
+                                raster = F )+ggtitle("")+FontSize(x.text = fontsize, y.text = fontsize, x.title = fontsize, y.title = fontsize, legend.text=element_text(size=fontsize), 
+                                                                 legend.title=element_text(size=fontsize ))
+
+ggsave(plot=Umap, filename=paste("/data/leuven/343/vsc34335/Figures_Liver/",i,"_UMAP.svg",sep = "") ,height=5.2, width=9, units="in", dpi=320)
+ggsave(plot=Umap, filename=paste("/data/leuven/343/vsc34335/Figures_Liver/",i,"_UMAP.pdf",sep = "") ,height=5.2, width=9, units="in", dpi=320)
+   
+#Boxplot
+  ##boxplot percentage patients
+Idents(sub)<-sub@meta.data$orig.ident
+table<-table(sub@meta.data$subcluster_cellphonedb, sub@active.ident)
+table<-as.data.frame.matrix(table)
+table<-table[order(row.names(table)),]
+table <- table[ order(as.numeric(row.names(table))), ]
+table.perc<-apply(table[],2,function (x){(x/sum(x))*100})
+table.perc.round<-as.data.frame(t(round(table.perc, digits = 2))) ##rounded number
+table.perc.round$patient<-rownames(table.perc.round)
+table.perc.round$disease<-c("lean", "lean", "lean", "lean","obese", "obese","obese", "obese","obese","MASL",
+                            "MASL","MASL","MASL","MASH","MASH","MASH","MASH","MASH")
+table.perc.round$disease<-factor(table.perc.round$disease, levels = c("lean", "obese",  "MASL","MASH"))
+
+longer_table<-table.perc.round %>% tidyr::pivot_longer(cols =subcluster_levels,  names_to = "Cluster", values_to = "Percentage")
+
+box_clusters<-ggboxplot(longer_table, x="Cluster", y="Percentage", add = "jitter", color="disease", palette=colours_disease, ylim=c(0,120))+theme(axis.text.x = element_text(angle = 45, hjust=1), 
+                axis.title.x = element_blank())+FontSize(x.text = fontsize, y.text = fontsize, x.title = fontsize, y.title = fontsize, legend.text=element_text(size=fontsize), legend.title=element_text(size=fontsize ))+xlab("")+ylab("")
+
+ggsave(plot=box_clusters,filename=paste("/data/leuven/343/vsc34335/Figures_Liver/",i,"_Percentage.svg",sep = "") ,height=6, width=6, units="in", dpi=320)
+ggsave(plot=box_clusters,filename=paste("/data/leuven/343/vsc34335/Figures_Liver/",i,"_Percentage.pdf",sep = "") ,height=6, width=6, units="in", dpi=320)
+
+bux_cluster_stats<-  box_clusters+geom_pwc(
+  aes(group = disease), tip.length = 0,
+  method = "t_test", label = "p.adj.signif",
+   hide.ns = T) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1)))
+ggsave(plot=bux_cluster_stats, filename=paste("/data/leuven/343/vsc34335/Figures_Liver/",i,"_Percentage_stats.svg",sep = "") ,height=6, width=6, units="in", dpi=320)
+ggsave(plot=bux_cluster_stats, filename=paste("/data/leuven/343/vsc34335/Figures_Liver/",i,"_Percentage_stats.pdf",sep = "") ,height=6, width=6, units="in", dpi=320)
+
+
+#DotPlot
+  Idents(sub)<-sub$subcluster_cellphonedb
+markers<-FindAllMarkers(object = sub, assay = "RNA", only.pos = TRUE, min.pct = 0.25)
+wiltopTrans <- markers[markers$p_val_adj<1e-10,]
+wiltopTrans2<-wiltopTrans %>% group_by(cluster) %>% top_n(3, avg_log2FC)
+sub <- ScaleData(sub, features = as.character(unique(wiltopTrans2$gene)), assay = "RNA")
+dotplot<-DotPlot(sub, group.by= "subcluster_cellphonedb",features = as.character(unique(wiltopTrans2$gene)) , assay = "RNA", cols = c("steelblue2", "red"))+theme(axis.text.x = element_text(angle = 45, hjust=1), axis.title.x = element_blank())+FontSize(x.text = fontsize, y.text = fontsize, x.title = fontsize, y.title = fontsize, legend.text=element_text(size=fontsize), legend.title=element_text(size=fontsize )) +xlab("")+ylab("")+coord_flip()
+ggsave(plot=dotplot, filename=paste("/data/leuven/343/vsc34335/Figures_Liver/",i,"_dotplot.pdf",sep = "") ,height=6, width=8, units="in", dpi=320)
+   
+}
 
 
 
