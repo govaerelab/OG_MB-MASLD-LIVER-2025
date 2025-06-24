@@ -3,6 +3,7 @@ library(Seurat) #v5
 options(Seurat.object.assay.version = "v5")
 options(future.globals.maxSize= 8912896000)
 setwd("C:/Users/u0125188/Desktop/Liver")
+fontsize=14.5
 
 Leuven1<-LoadNanostring("CosMX/Leuven_1/", fov = "Leuven1")
 Leuven1$orig.ident<-"Leuven1"
@@ -132,8 +133,9 @@ Idents(merged_CosMX)<-merged_CosMX$Cluster
 downed_cosmx<-subset(merged_CosMX, downsample=1000)
 genes<-FindAllMarkers(downed_cosmx,  only.pos = T , verbose=T)
 wiltopTrans <- genes[genes$p_val_adj<1e-10,]
-wiltopTrans2<-wiltopTrans %>% group_by(cluster) %>% top_n(5, avg_log2FC)
-plot<-DotPlot(merged_CosMX, features = as.character(unique(wiltopTrans2$gene)) ,cols = c("steelblue2", "red"), col.min = 0, dot.min = 0.1)+coord_flip()
+wiltopTrans2<-wiltopTrans %>% group_by(cluster) %>% top_n(-7, p_val_adj)
+plot<-DotPlot(merged_CosMX, features = as.character(unique(wiltopTrans2$gene)) ,group.by="Cluster", assay = "Nanostring", cols = c("steelblue2", "red"), col.min = 0, dot.min = 0.1)+coord_flip()+theme(axis.text.x = element_text(angle = 45, hjust=1), axis.title.x = element_blank())+FontSize(x.text = fontsize, y.text = fontsize, x.title = fontsize, y.title = fontsize, legend.text=element_text(size=fontsize), legend.title=element_text(size=fontsize )) +xlab("")+ylab("")
+)
 ggsave(plot=plot, filename="/data/leuven/343/vsc34335/CosMX/DotPlot_markers_CosMX.pdf" ,height=10, width=10, units="in", dpi=320)
 
 
