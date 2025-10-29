@@ -1,7 +1,6 @@
 #Figure 3 plots
 #save all necessary files if needed with ggsave
 set.seed(1234567)
-setwd("C:/Users/u0125188/Desktop/Liver") ##change to output directory
 library(Seurat)
 library(SeuratObject)
 library(dplyr)
@@ -264,7 +263,7 @@ plot4<-ImageDimPlot(merged_CosMX,fov="Leuven1zoom3",group.by = "Cluster", molecu
 genes<-c("IL32", "GPNMB","FABP5","LPL","MSR1","CD163","HLA-DRA") 
 for(i in 1:length(genes)){
   plot1<- ImageFeaturePlot(merged_CosMX, fov="Leuven1zoom3",genes[i], combine=T,  coord.fixed = T, size=2,crop=T, axes=F,border.size = NA, min.cutoff=0, max.cutoff=5)+coord_flip()+theme(panel.grid = element_blank())
-  ggsave(plot=plot1, filename=paste0("/data/leuven/343/vsc34335/CosMX/Leuven1_zoom3_CosMX_featureplot_",genes[i],".pdf", sep = "") ,height=4.5, width=9, units="in", dpi=320)
+  ggsave(plot=plot1, filename=paste0(".../Leuven1_zoom3_CosMX_featureplot_",genes[i],".pdf", sep = "") ,height=4.5, width=9, units="in", dpi=320)
   
 }
 
@@ -297,7 +296,7 @@ for(i in genes){
 
 #Get proportion of cells expressing certain markers per disease
 
-#combination and percentage of >0 counts
+#combination and percentage of >=2 counts
 get_percentage<-function(disease_group, gene_vector){
   sub<-subset(Myeloid_postclean, subset=disease_MASH %in% disease_group)
   df<-sub@assays$RNA@counts
@@ -312,13 +311,13 @@ get_percentage<-function(disease_group, gene_vector){
     # For single gene combinations, we check directly for > 0 counts
     if (length(gene_combination) == 1) {
       # Calculate the proportion of cells with counts > 0
-      count_above_zero <- sum(subset_data > 0)
+      count_above_two <- sum(subset_data >=2)
       total_cells <- ncol(subset_data)
-      proportion <- ifelse(total_cells > 0, count_above_zero / total_cells, 0)
+      proportion <- ifelse(total_cells > 0, count_above_two / total_cells, 0)
       
     } else {
       # For multiple genes, check if all conditions are > 0
-      condition_met <- apply(subset_data, 2, function(col) all(col > 0))
+      condition_met <- apply(subset_data, 2, function(col) all(col >=2))
       total_cells <- ncol(subset_data)
       proportion <- ifelse(total_cells > 0, sum(condition_met) / total_cells, 0)
     }
@@ -357,3 +356,148 @@ MASH_proportion<-get_percentage(gene_vector=genes, disease_group="MASH")
 no_MASH_proportion<-get_percentage(gene_vector=genes, disease_group="No MASH") 
 
 merged<-merge(MASH_proportion, no_MASH_proportion) 
+
+#calculate fraction for Markers in Myeloids of Gribben
+Nature<-readRDS("data/GSE202379_SeuratObject_AllCells.rds")
+Nature$disease<-Nature$Disease.status
+Nature$Cluster<-Nature$cell.annotation
+
+Idents(Nature)<-Nature$disease
+Nature<-RenameIdents(Nature,"NASH w/o cirrhosis"="NASH","NASH with cirrhosis"="NASH")
+Nature$disease<-Idents(Nature)
+
+table(Nature$disease)
+
+sub_Myeloids<-subset(Nature, subset=Cluster %in% c("Macrophages"))
+table(sub_Myeloids$disease)
+#combination and percentage of >0 counts
+get_percentage<-function(disease_group, gene_vector){
+    sub<-subset(sub_Myeloids, subset=disease %in% disease_group)
+df<-sub@assays$RNA@counts
+    # Filter the dataframe for only the genes in the vector
+    filtered_df <- df[rownames(df) %in% gene_vector, ]
+
+    # Function to calculate proportions of cells with counts >= 4
+    calculate_proportion <- function(gene_combination, data) {
+        subset_data <- data[gene_combination, , drop = FALSE]
+        
+        if (length(gene_combination) == 1) {
+            count_above_4 <- sum(subset_data >= 2)
+            total_cells <- ncol(subset_data)
+            proportion <- ifelse(total_cells > 0, count_above_4 / total_cells, 0)
+        } else {
+            condition_met <- apply(subset_data, 2, function(col) all(col >= 2))
+            total_cells <- ncol(subset_data)
+            proportion <- ifelse(total_cells > 0, sum(condition_met) / total_cells, 0)
+        }
+        return(proportion)
+    }
+
+    # Initialize result data frame
+    results <- data.frame(genes = character(), proportion = numeric(), stringsAsFactors = FALSE)
+
+    # Loop through 1, 2, and 3 gene combinations
+    for (i in 1:3) {
+        gene_combinations <- combn(gene_vector, i, simplify = FALSE)
+        for (combination in gene_combinations) {
+            proportion <- calculate_proportion(combination, filtered_df)
+            gene_comb_name <- paste(combination, collapse = " & ")
+            results <- rbind(results, data.frame(genes = gene_comb_name, proportion = proportion, stringsAsFactors = FALSE))
+        }
+    }
+
+    # Convert to percentage and label
+    results$proportion <- results$proportion * 100
+    colnames(results) <- c("genes", paste("proportion_", disease_group, "(%)", sep = ""))
+    
+    return(results)
+}
+
+genes<-c("TREM2", 'CD9', 'TIMD4', 'S100A4', 'LPL', 'GPNMB', 'SPP1', 'CD163', 'MARCO', 'CD5L', 'CCL19')
+Healthy_proportion<-get_percentage(gene_vector=genes, disease_group="Healthy control")                          
+NAFLD_proportion<-get_percentage(gene_vector=genes, disease_group="NAFLD") 
+#NASH_wo_proportion<-get_percentage(gene_vector=genes, disease_group="NASH w/o cirrhosis") 
+NASH_with_proportion<-get_percentage(gene_vector=genes, disease_group="NASH") 
+End_proportion<-get_percentage(gene_vector=genes, disease_group="end stage") 
+                           
+library(dplyr)                      
+merged <- full_join(Healthy_proportion, full_join(NAFLD_proportion, full_join(NASH_with_proportion,  End_proportion)))  
+
+                             
+#GPNMB+ cells subclustering
+df<-Myeloid_postclean@assays$RNA@counts
+GPNMB_cells<-names(which(df["GPNMB",]>=2))
+GPNMB_Macs<-subset(Myeloid_postclean, cells=GPNMB_cells)
+
+dims=5
+    DefaultAssay(GPNMB_Macs)<-"RNA"
+GPNMB_Macs<-FindVariableFeatures(object = GPNMB_Macs, verbose=F)
+DefaultAssay(GPNMB_Macs)<-"integrated" ##use only for "clustering" not differential analysis
+GPNMB_Macs <- ScaleData(object = GPNMB_Macs,
+                  vars.to.regress = c("nCount_RNA", "percent.mito"))
+GPNMB_Macs <- RunPCA(object = GPNMB_Macs, npcs = dims, vebose=F)
+GPNMB_Macs <- RunUMAP(GPNMB_Macs, dims = 1:dims, return.model = T, vebose=F)
+GPNMB_Macs <- FindNeighbors(GPNMB_Macs, reduction = "pca", dims = 1:dims)
+GPNMB_Macs <- FindClusters(GPNMB_Macs, resolution = 0.3, algorithm = 1)
+ DefaultAssay(GPNMB_Macs)<-"RNA"
+GPNMB_Macs<-NormalizeData(object = GPNMB_Macs, normalization.method = "LogNormalize", scale.factor = 10000, assay = "RNA")
+DimPlot(GPNMB_Macs, label=T, raster = F, label.size = 7, pt.size = 1)  
+
+#Generate stacked barplot of percentage of GPNMB+ and GPNMB- cells
+library(ggpubr)
+library(tidyr)
+df<-data.frame(table(GPNMB_Macs$new_subcluster), table(Myeloid_postclean$new_subcluster)[c(-8,-6)])
+df$`Var1.1`<-NULL
+colnames(df)<-c("celltype","GPNMB_pos","Total")
+df$GPNMB_high<-(df$GPNMB_pos/df$Total)*100
+df$GPNMB_low_neg<-100-df$GPNMB_high
+
+# Assuming your dataframe is called df
+df_long <- df %>%
+  pivot_longer(cols = c(GPNMB_high, GPNMB_low_neg),
+               names_to = "Category",
+               values_to = "Percentage")
+
+# Create the stacked barplot
+p<-ggbarplot(df_long, x = "celltype", y = "Percentage",
+          fill = "Category", 
+          position = position_stack(), 
+          ylab = "Percentage of Cells", xlab = "Cell Type",
+          legend.title = "Category",palette = c("red", "steelblue2"))
+ggsave(plot=p, filename=paste(".../Fraction_Barplot_GPNMB+Macs.pdf", sep = "") ,height=4, width=6, units="in", dpi=320)
+
+#Calculate the LAM signature in Myeloids
+LAM_signature <- list(c("TREM2","LIPA","LPL","CTSB","FABP4","FABP5","LGALS1","LGALS3","CD9","CD36"))
+Myeloid_postclean <- AddModuleScore(
+  object = Myeloid_postclean,
+  features = LAM_signature,
+  ctrl = 5,
+  name = 'LAM_signature'
+)
+vlnplot<-VlnPlot(Myeloid_postclean, assay = "RNA", pt.size = 0, features = "LAM_signature1", group.by = "new_subcluster", cols = colours_Myeloid_new)+NoLegend()+theme( axis.ticks = element_blank(), axis.text.x = element_blank(), plot.title = element_text(size=fontsize), axis.text.y = element_text(size=fontsize))+NoLegend()+xlab("")
+
+#Calculate the LAM signature in GPNMB+ cells
+LAM_signature <- list(c("TREM2","LIPA","LPL","CTSB","FABP4","FABP5","LGALS1","LGALS3","CD9","CD36"))
+GPNMB_Macs <- AddModuleScore(
+  object = GPNMB_Macs,
+  features = LAM_signature,
+  ctrl = 5,
+  name = 'LAM_signature'
+)
+
+DefaultAssay(GPNMB_Macs)<-"RNA"
+genes<-c("GPNMB","LAM_signature1")
+for(i in genes){
+  feature_GPNMB<-FeaturePlot(GPNMB_Macs, label = F, features = i, order = T, pt.size = 1.2, max.cutoff =4, min.cutoff = 1 , cols = c("grey", "brown4"))+theme( 
+    panel.grid.major = element_blank(), # get rid of major grid
+    panel.grid.minor = element_blank(),axis.line = element_blank(), axis.text = element_blank(),
+    axis.ticks = element_blank(), axis.title = element_blank())+NoLegend()+ggtitle("")
+  ggsave(plot=feature_GPNMB, filename=paste(".../",i,"_Feature_GPNMB+Macs_1_4.pdf", sep = "") ,height=3, width=3, units="in", dpi=320)
+}
+
+for(i in genes){
+  vlnplot<-VlnPlot(GPNMB_Macs, assay = "RNA", pt.size = 0, features = i, group.by = "new_subcluster", cols = colours_Myeloid_new[c(-8,-6)])+NoLegend()+theme( axis.ticks = element_blank(), axis.text.x = element_blank(), plot.title = element_text(size=fontsize), axis.text.y = element_text(size=fontsize))+NoLegend()+xlab("")
+  ggsave(plot=vlnplot, filename=paste(".../",i,"_VlnPlot_GPNMB+Macs.pdf", sep = "") ,height=3, width=3, units="in", dpi=320)
+}
+                                   
+                             
