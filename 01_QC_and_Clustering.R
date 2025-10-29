@@ -81,7 +81,6 @@ LB231.data <- Read10X (data.dir = "SoupX/obese_LB231_soupx_counts")
 LB235.data <- Read10X (data.dir = "SoupX/obese_LB235_soupx_counts")
 
 AB21B6674.data <- Read10X (data.dir = "SoupX/NAFL_21B6674_soupx_counts")
-#AB3.data <- Read10X (data.dir = "SoupX/NAFL/AB3")
 AB54.data <- Read10X (data.dir = "SoupX/NAFL_AB54_soupx_counts")
 LB219.data <- Read10X (data.dir = "SoupX/NAFL_LB219_soupx_counts")
 LB227.data <- Read10X (data.dir = "SoupX/NAFL_LB227_soupx_counts")
@@ -291,4 +290,5 @@ Liver_clean <- ScaleData(object = Liver_clean,
                          vars.to.regress = c("nCount_RNA", "percent.mito"))
 Liver_clean <- RunPCA(object = Liver_clean, npcs = 50)
 Liver_clean <- RunUMAP(Liver_clean, dims = 1:50)
+
 DefaultAssay(Liver_clean)<-"RNA"
