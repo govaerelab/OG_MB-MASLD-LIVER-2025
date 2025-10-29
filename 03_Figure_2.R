@@ -1,7 +1,6 @@
 #Figure 2 plots
 #save all necessary files if needed with ggsave
 set.seed(1234567)
-setwd("C:/Users/u0125188/Desktop/Liver") ##change to output directory
 library(Seurat)
 library(SeuratObject)
 library(dplyr)
@@ -157,4 +156,5 @@ res$prop_of_all <- res$prop_of_all[, df$position]
 pdf("GeoMX_deconv_all_barplot_gapped.pdf", height = 10, width = 10)
 TIL_barplot(res$prop_of_all,draw_legend = F, cex.names = 0.3, col = rev(c(colours_Liver)),space=c(rep(0.05,8),0.2,rep(0.05,17), 0.7, rep(0.05,6),0.2,0.2,rep(0.05,8), 0.7,rep(0.05,6),0.2,rep(0.05,7),0.2,rep(0.05,18)))
 dev.off()
+
 
