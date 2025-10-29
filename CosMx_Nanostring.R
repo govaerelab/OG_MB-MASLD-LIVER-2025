@@ -66,7 +66,7 @@ for(i in CosMX_genes){
     panel.grid.major = element_blank(), # get rid of major grid
     panel.grid.minor = element_blank(),axis.line = element_blank(), axis.text = element_blank(),
     axis.ticks = element_blank(), axis.title = element_blank())+NoLegend()+ggtitle("")
-  ggsave(plot=feature_cite, filename=paste0("/data/leuven/343/vsc34335/CosMX/",i,"_CosMX_FeaturePlot.pdf", sep = "") ,height=3, width=3, units="in", dpi=320)
+  ggsave(plot=feature_cite, filename=paste0(".../",i,"_CosMX_FeaturePlot.pdf", sep = "") ,height=3, width=3, units="in", dpi=320)
 }
 
 #if you want to use segmentation (wasn't good here)
@@ -77,7 +77,7 @@ for (i in names){
 }
 for(i in names){ #to image
   plot<-ImageDimPlot(merged_CosMX,fov=i,group.by = "Cluster",  alpha=1,border.size = NULL,border.color = NA,dark.background = T,  cols =colours_CosMX,crop = T,nmols = 10000,flip_xy = T)+scale_y_reverse()+theme(panel.grid = element_blank())
-  ggsave(plot=plot, filename=paste0("/data/leuven/343/vsc34335/CosMX/",i,"_CosMX_Clustering.pdf", sep = "") ,height=20, width=20, units="in", dpi=320)
+  ggsave(plot=plot, filename=paste0(".../",i,"_CosMX_Clustering.pdf", sep = "") ,height=20, width=20, units="in", dpi=320)
 }
 
 #use centroids, border.size=NA is important so that there are no lines around the centroids
@@ -87,7 +87,7 @@ for (i in names){
 }
 for(i in names){
   plot<-ImageDimPlot(merged_CosMX,fov=i,group.by = "Cluster",  alpha=1,dark.background = T,border.size=NA,  cols =colours_CosMX,crop = T,nmols = 10000,flip_xy = F)+theme(panel.grid = element_blank())
-  ggsave(plot=plot, filename=paste0("/data/leuven/343/vsc34335/CosMX/",i,"_CosMX_Clustering_centroids.pdf", sep = "") ,height=20, width=20, units="in", dpi=320)
+  ggsave(plot=plot, filename=paste0(".../",i,"_CosMX_Clustering_centroids.pdf", sep = "") ,height=20, width=20, units="in", dpi=320)
 }
 
 #Crop ROIs for Leuven1
@@ -104,9 +104,9 @@ plot1<-ImageDimPlot(merged_CosMX,fov="Leuven1lower",group.by = "Cluster", size=0
 plot2<-ImageDimPlot(merged_CosMX,fov="Leuven1zoom1",group.by = "Cluster", size=1, alpha=1,dark.background = T,border.size=NA,  cols =colours_CosMX,crop = T,nmols = 10000,flip_xy = F, axes = F)+theme(panel.grid = element_blank())
 plot3<-ImageDimPlot(merged_CosMX,fov="Leuven1zoom2",group.by = "Cluster",size=1.5,  alpha=1,dark.background = T,border.size=NA,  cols =colours_CosMX,crop = T,nmols = 10000,flip_xy = F, axes = F)+theme(panel.grid = element_blank())
 
-ggsave(plot=plot1, filename=paste0("/data/leuven/343/vsc34335/CosMX/Leuven1_lower_CosMX_Clustering_centroids.pdf", sep = "") ,height=10, width=10, units="in", dpi=320)
-ggsave(plot=plot2, filename=paste0("/data/leuven/343/vsc34335/CosMX/Leuven1_zoom1_CosMX_Clustering_centroids_bigger.pdf", sep = "") ,height=10, width=10, units="in", dpi=320)
-ggsave(plot=plot3, filename=paste0("/data/leuven/343/vsc34335/CosMX/Leuven1_zoom2_CosMX_Clustering_centroids_bigger.pdf", sep = "") ,height=10, width=10, units="in", dpi=320)
+ggsave(plot=plot1, filename=paste0(".../Leuven1_lower_CosMX_Clustering_centroids.pdf", sep = "") ,height=10, width=10, units="in", dpi=320)
+ggsave(plot=plot2, filename=paste0(".../Leuven1_zoom1_CosMX_Clustering_centroids_bigger.pdf", sep = "") ,height=10, width=10, units="in", dpi=320)
+ggsave(plot=plot3, filename=paste0(".../Leuven1_zoom2_CosMX_Clustering_centroids_bigger.pdf", sep = "") ,height=10, width=10, units="in", dpi=320)
 
 #If you want to plot some molecules extra
 genes_to_plot<-c("IL32","GPNMB")
@@ -116,16 +116,16 @@ plot2<-ImageDimPlot(merged_CosMX,fov="Leuven1zoom1",group.by = "Cluster", molecu
 plot3<-ImageDimPlot(merged_CosMX,fov="Leuven1zoom2",group.by = "Cluster", molecules=genes_to_plot,size=1.5, alpha=0.8, mols.cols = colours_for_genes, mols.size = 0.08, cols =colours_CosMX,crop = T, border.size = NA,nmols = 10000, flip_xy = F)+theme(panel.grid = element_blank())
 plot4<-ImageDimPlot(merged_CosMX,fov="Leuven1zoom3",group.by = "Cluster", molecules=genes_to_plot,size=2, alpha=0.8, mols.cols = colours_for_genes, mols.size = 0.2, cols =colours_CosMX,crop = T, border.size = NA,nmols = 10000, flip_xy = F)+theme(panel.grid = element_blank())
 
-ggsave(plot=plot1, filename=paste0("/data/leuven/343/vsc34335/CosMX/Leuven1_lower_CosMX_Clustering_centroids_IL32_GPNMB.pdf", sep = "") ,height=10, width=10, units="in", dpi=320)
-ggsave(plot=plot2, filename=paste0("/data/leuven/343/vsc34335/CosMX/Leuven1_zoom1_CosMX_Clustering_centroids_IL32_GPNMB.pdf", sep = "") ,height=10, width=10, units="in", dpi=320)
-ggsave(plot=plot3, filename=paste0("/data/leuven/343/vsc34335/CosMX/Leuven1_zoom2_CosMX_Clustering_centroids_IL32_GPNMB.pdf", sep = "") ,height=10, width=10, units="in", dpi=320)
-ggsave(plot=plot4, filename=paste0("/data/leuven/343/vsc34335/CosMX/Leuven1_zoom3_CosMX_Clustering_centroids_IL32_GPNMB.pdf", sep = "") ,height=10, width=10, units="in", dpi=320)
+ggsave(plot=plot1, filename=paste0(".../Leuven1_lower_CosMX_Clustering_centroids_IL32_GPNMB.pdf", sep = "") ,height=10, width=10, units="in", dpi=320)
+ggsave(plot=plot2, filename=paste0(".../Leuven1_zoom1_CosMX_Clustering_centroids_IL32_GPNMB.pdf", sep = "") ,height=10, width=10, units="in", dpi=320)
+ggsave(plot=plot3, filename=paste0(".../Leuven1_zoom2_CosMX_Clustering_centroids_IL32_GPNMB.pdf", sep = "") ,height=10, width=10, units="in", dpi=320)
+ggsave(plot=plot4, filename=paste0(".../Leuven1_zoom3_CosMX_Clustering_centroids_IL32_GPNMB.pdf", sep = "") ,height=10, width=10, units="in", dpi=320)
 
 #FeaturePlot on the image, not UMAP, on ROI
 genes<-c("IL32", "GPNMB","FABP5","LPL","MSR1","CD163","HLA-DRA") 
 for(i in 1:length(genes)){
   plot1<- ImageFeaturePlot(merged_CosMX, fov="Leuven1zoom3",genes[i], combine=T,  coord.fixed = T, size=2,crop=T, axes=F,border.size = NA, min.cutoff=0, max.cutoff=5)+coord_flip()+theme(panel.grid = element_blank())
-  ggsave(plot=plot1, filename=paste0("/data/leuven/343/vsc34335/CosMX/Leuven1_zoom3_CosMX_featureplot_",genes[i],".pdf", sep = "") ,height=4.5, width=9, units="in", dpi=320)
+  ggsave(plot=plot1, filename=paste0(".../Leuven1_zoom3_CosMX_featureplot_",genes[i],".pdf", sep = "") ,height=4.5, width=9, units="in", dpi=320)
 }
 
 #make a DotPlot of the markers for clusters
@@ -136,7 +136,7 @@ wiltopTrans <- genes[genes$p_val_adj<1e-10,]
 wiltopTrans2<-wiltopTrans %>% group_by(cluster) %>% top_n(-7, p_val_adj)
 plot<-DotPlot(merged_CosMX, features = as.character(unique(wiltopTrans2$gene)) ,group.by="Cluster", assay = "Nanostring", cols = c("steelblue2", "red"), col.min = 0, dot.min = 0.1)+coord_flip()+theme(axis.text.x = element_text(angle = 45, hjust=1), axis.title.x = element_blank())+FontSize(x.text = fontsize, y.text = fontsize, x.title = fontsize, y.title = fontsize, legend.text=element_text(size=fontsize), legend.title=element_text(size=fontsize )) +xlab("")+ylab("")
 )
-ggsave(plot=plot, filename="/data/leuven/343/vsc34335/CosMX/DotPlot_markers_CosMX.pdf" ,height=10, width=10, units="in", dpi=320)
+ggsave(plot=plot, filename=".../DotPlot_markers_CosMX.pdf" ,height=10, width=10, units="in", dpi=320)
 
 
 
