@@ -1,7 +1,6 @@
 #Figure 1 plots
 #save all necessary files if needed with ggsave
 set.seed(1234567)
-setwd("C:/Users/u0125188/Desktop/Liver") ##change to output directory
 library(Seurat)
 library(SeuratObject)
 library(dplyr)
@@ -196,7 +195,7 @@ for(j in 1:length(colnames(con))){
     
  }
 names(l)<-clusters
-write.xlsx(l, file = paste("/data/leuven/343/vsc34335/CosMX/GSVA_disease_sig_pathways.xlsx", sep = ""), row.names=T)
+write.xlsx(l, file = paste(".../GSVA_disease_sig_pathways.xlsx", sep = ""), row.names=T)
 
 #Figure S1
 Umap_Liver_orig<-DimPlot(Liver_clean, reduction = "umap",  group.by = "orig.ident", repel = F, label = F, pt.size = 0.5,  raster = T, shuffle = T)+ggtitle("")+FontSize(x.text = fontsize, y.text = fontsize, x.title = fontsize, y.title = fontsize, legend.text=element_text(size=fontsize), legend.title=element_text(size=fontsize ))
@@ -508,7 +507,6 @@ Umap<-DimPlot(sub, reduction = "umap",  group.by = "subcluster_cellphonedb", rep
                                 raster = F )+ggtitle("")+FontSize(x.text = fontsize, y.text = fontsize, x.title = fontsize, y.title = fontsize, legend.text=element_text(size=fontsize), 
                                                                  legend.title=element_text(size=fontsize ))
 
-ggsave(plot=Umap, filename=paste("/data/leuven/343/vsc34335/Figures_Liver/",i,"_UMAP.svg",sep = "") ,height=5.2, width=9, units="in", dpi=320)
 ggsave(plot=Umap, filename=paste("/data/leuven/343/vsc34335/Figures_Liver/",i,"_UMAP.pdf",sep = "") ,height=5.2, width=9, units="in", dpi=320)
    
 #Boxplot
@@ -530,16 +528,14 @@ longer_table<-table.perc.round %>% tidyr::pivot_longer(cols =subcluster_levels, 
 box_clusters<-ggboxplot(longer_table, x="Cluster", y="Percentage", add = "jitter", color="disease", palette=colours_disease, ylim=c(0,120))+theme(axis.text.x = element_text(angle = 45, hjust=1), 
                 axis.title.x = element_blank())+FontSize(x.text = fontsize, y.text = fontsize, x.title = fontsize, y.title = fontsize, legend.text=element_text(size=fontsize), legend.title=element_text(size=fontsize ))+xlab("")+ylab("")
 
-ggsave(plot=box_clusters,filename=paste("/data/leuven/343/vsc34335/Figures_Liver/",i,"_Percentage.svg",sep = "") ,height=6, width=6, units="in", dpi=320)
-ggsave(plot=box_clusters,filename=paste("/data/leuven/343/vsc34335/Figures_Liver/",i,"_Percentage.pdf",sep = "") ,height=6, width=6, units="in", dpi=320)
+ggsave(plot=box_clusters,filename=paste(".../",i,"_Percentage.pdf",sep = "") ,height=6, width=6, units="in", dpi=320)
 
 bux_cluster_stats<-  box_clusters+geom_pwc(
   aes(group = disease), tip.length = 0,
   method = "t_test", label = "p.adj.signif",
    hide.ns = T) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.1)))
-ggsave(plot=bux_cluster_stats, filename=paste("/data/leuven/343/vsc34335/Figures_Liver/",i,"_Percentage_stats.svg",sep = "") ,height=6, width=6, units="in", dpi=320)
-ggsave(plot=bux_cluster_stats, filename=paste("/data/leuven/343/vsc34335/Figures_Liver/",i,"_Percentage_stats.pdf",sep = "") ,height=6, width=6, units="in", dpi=320)
+ggsave(plot=bux_cluster_stats, filename=paste(".../",i,"_Percentage_stats.pdf",sep = "") ,height=6, width=6, units="in", dpi=320)
 
 
 #DotPlot
@@ -549,9 +545,10 @@ wiltopTrans <- markers[markers$p_val_adj<1e-10,]
 wiltopTrans2<-wiltopTrans %>% group_by(cluster) %>% top_n(3, avg_log2FC)
 sub <- ScaleData(sub, features = as.character(unique(wiltopTrans2$gene)), assay = "RNA")
 dotplot<-DotPlot(sub, group.by= "subcluster_cellphonedb",features = as.character(unique(wiltopTrans2$gene)) , assay = "RNA", cols = c("steelblue2", "red"))+theme(axis.text.x = element_text(angle = 45, hjust=1), axis.title.x = element_blank())+FontSize(x.text = fontsize, y.text = fontsize, x.title = fontsize, y.title = fontsize, legend.text=element_text(size=fontsize), legend.title=element_text(size=fontsize )) +xlab("")+ylab("")+coord_flip()
-ggsave(plot=dotplot, filename=paste("/data/leuven/343/vsc34335/Figures_Liver/",i,"_dotplot.pdf",sep = "") ,height=6, width=8, units="in", dpi=320)
+ggsave(plot=dotplot, filename=paste(".../",i,"_dotplot.pdf",sep = "") ,height=6, width=8, units="in", dpi=320)
    
 }
+
 
 
 
