@@ -1,6 +1,6 @@
-# Integrated Multiomics Uncovers Distinct Macrophage Alterations in Human Metabolic dysfunction-Associated Steatohepatitis Progression
+#  Integrated multi-omics of metabolic dysfunction-associated steatohepatitis.
 ## [Link]
-## Please cite : Boesch M et al., Integrated Multiomics Uncovers Distinct Macrophage Alterations in Human Metabolic dysfunction-Associated Steatohepatitis Progression.  (2025) <br/>
+## Please cite : Boesch M et al.,  Integrated multi-omics of metabolic dysfunction-associated steatohepatitis.  (2025) <br/>
 
 ![](https://github.com/MarkusBoesch93/OG_MB-MASLD-LIVER-2025/blob/main/Graphical%20abstract.jpg?raw=true)
 
