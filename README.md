@@ -1,6 +1,6 @@
-#  Integrated multi-omics of metabolic dysfunction-associated steatohepatitis.
-## [Link]
-## Please cite : Boesch M et al.,  Integrated multi-omics of metabolic dysfunction-associated steatohepatitis.  (2025) <br/>
+#  Integrated multi-omics identifies distinct macrophage alterations during progression of metabolic dysfunction-associated steatohepatitis
+## [Link](https://www.nature.com/articles/s41588-026-02600-3)
+## Please cite : Boesch M et al.,  Integrated multi-omics identifies distinct macrophage alterations during progression of metabolic dysfunction-associated steatohepatitis  (Nature Genetics, 2026) <br/>
 
 ![](https://github.com/MarkusBoesch93/OG_MB-MASLD-LIVER-2025/blob/main/Graphical%20abstract.jpg?raw=true)
 
